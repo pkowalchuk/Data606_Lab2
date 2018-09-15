@@ -1,0 +1,144 @@
+---
+title: "Data 606 - Lab 2"
+author: "Peter Kowalchuk"
+date: "September 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Probability
+## Hot Hands
+
+## Getting Started
+
+```{r}
+load("more/kobe.RData")
+head(kobe)
+kobe$basket[1:9]
+```
+
+![](ex1.png)
+
+Streak of length 1 means one basket was made, and the next shot was a miss. So there are 1 hit and 1 miss in a streak of 1.
+A streak of length zero has no hits, the first and only shot in the streak was a miss.
+
+```{r}
+kobe_streak <- calc_streak(kobe$basket)
+kobe_streak
+barplot(table(kobe_streak))
+```
+
+![](ex2.png)
+
+Typical streak length was 0 with a total of 39. Streaks of 1 were second with 24, then 6 streaks of 2 and 3, and only one streak of 4 
+
+```{r}
+table(kobe_streak)
+```
+
+Longest streak of baskets was 4
+
+```{r}
+max(kobe_streak)
+```
+
+## Simulations in R
+
+![](ex3.png)
+
+With fair coins heads and tails were about 50% each, for the unfair coin about 20% heads and 80% tails
+
+```{r}
+outcomes <- c("heads", "tails")
+sample(outcomes, size = 1, replace = TRUE)
+sim_fair_coin <- sample(outcomes, size = 100, replace = TRUE)
+sim_fair_coin
+table(sim_fair_coin)
+sim_unfair_coin <- sample(outcomes, size = 100, replace = TRUE, prob = c(0.2, 0.8))
+table(sim_unfair_coin)
+```
+
+## Simulating the Independent Shooter
+
+```{r}
+outcomes <- c("H", "M")
+sim_basket <- sample(outcomes, size = 1, replace = TRUE)
+sim_basket
+```
+
+![](ex4.png)
+
+The prob variable on the sample function needs to be set to 45% (for hits) and 55% (for misses). Then the sample variable is set to 133.
+
+```{r}
+sim_basket <- sample(outcomes, size = 133, replace = TRUE,prob = c(0.45,0.55))
+sim_basket
+table(sim_basket)
+kobe$basket
+table(kobe$basket)
+```
+
+# On your own
+
+![](o1.png)
+
+Results shown below using table and max functions. Results change each time simulation is run.
+
+```{r}
+independentShooter_streak<-calc_streak(sim_basket)
+table(independentShooter_streak)
+max(independentShooter_streak)
+```
+
+
+![](o2.png)
+
+Running the simulation a second time will show somewhat similar results. They wouldn't be the same becouse we are running a simulation and "picking shots out of the hat at random". But they wouldn't be completely different becouse the amount of hit and miss "shots in the hat" are the same for each simulation, with a defined proportion of 45% to 55% hits and miss respectively.
+
+```{r}
+sim_basket <- sample(outcomes, size = 133, replace = TRUE,prob = c(0.45,0.55))
+sim_basket
+independentShooter_streak<-calc_streak(sim_basket)
+table(independentShooter_streak)
+max(independentShooter_streak)
+```
+
+
+![](o3.png)
+
+As can be seen in the distribution plots below, both are very alike. We find both of them being right skewed. We also calculate the median and IQR for these distributions, with which we find very similar results. Becouse we find both distributions so alike, we do not find evidence that Kobe's Bryant is a "hot hand"
+
+```{r}
+table(kobe_streak)
+table(independentShooter_streak)
+kobeVector<-unlist(table(kobe_streak))
+independentVector<-unlist(table(independentShooter_streak))
+if (length(kobeVector)<length(independentVector)) {
+  kobeVector<-c(kobeVector,rep(0,length(independentVector)-length(kobeVector)))
+} else {
+  independentVector<-c(independentVector,rep(0,length(kobeVector)-length(independentVector)))  
+}
+
+kobeVector
+independentVector
+  
+h<-rbind(independentVector,kobeVector)
+h
+barplot(h,beside = T,main="Independent Shooter Distribution vs. Kobe Distribution",col=c("darkblue","red"),xlab="Streak Lengths",ylab = "Number of Streaks",legend=c("Independent Shooter","Kobe"),ylim=c(0,max(max(kobeVector),max(independentVector))+10),xpd = FALSE)
+
+```
+
+We calculate a descriptive statistics summary and do not find major differences between both distributions.
+
+```{r}
+median(kobeVector)
+IQR(kobeVector)
+
+median(independentVector)
+IQR(independentVector)
+```
+
+
